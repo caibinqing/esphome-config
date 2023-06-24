@@ -1,0 +1,36 @@
+esphome:
+  name: gate
+  includes:
+    - GateSwitch.h
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  ssid: !secret wifi_ssid_302
+  password: !secret wifi_password_302
+  ap:
+    ssid: "Gate"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+switch:
+- platform: custom
+  lambda: |-
+    auto gate_switch = new GateSwitch();
+    App.register_component(gate_switch);
+    return {gate_switch};
+  switches:
+    name: "楼道门"
