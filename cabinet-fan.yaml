@@ -34,18 +34,23 @@ i2c:
   frequency: 50kHz
   id: bus_a
 
-switch:
-  - platform: gpio
-    name: "Caibinet Fan"
+output:
+  - id: fan_output
+    platform: gpio
     pin:
       number: GPIO25
       inverted: true
 
+fan:
+  - platform: binary
+    output: fan_output
+    name: "Caibinet Fan"
+
 sensor:
   - platform: bmp085
     temperature:
-      name: "Caibinet Temperature"
+      name: "Caibinet Fan Temperature"
     pressure:
-      name: "Caibinet Pressure"
+      name: "Caibinet Fan Pressure"
     # address: 0x77
     update_interval: 60s
