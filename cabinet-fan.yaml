@@ -27,9 +27,25 @@ wifi:
 
 captive_portal:
 
+i2c:
+  sda: 21
+  scl: 22
+  scan: true
+  frequency: 50kHz
+  id: bus_a
+
 switch:
   - platform: gpio
-    name: "机柜风扇"
+    name: "Caibinet Fan"
     pin:
       number: GPIO25
       inverted: true
+
+sensor:
+  - platform: bmp085
+    temperature:
+      name: "Caibinet Temperature"
+    pressure:
+      name: "Caibinet Pressure"
+    # address: 0x77
+    update_interval: 60s
