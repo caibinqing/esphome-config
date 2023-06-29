@@ -44,13 +44,13 @@ output:
 fan:
   - platform: binary
     output: fan_output
-    name: "Caibinet Fan"
+    name: "Cabinet Fan"
 
 sensor:
   - platform: bmp085
     temperature:
-      name: "Caibinet Fan Temperature"
+      name: "Cabinet Fan Temperature"
     pressure:
-      name: "Caibinet Fan Pressure"
+      name: "Cabinet Fan Pressure"
     # address: 0x77
     update_interval: 60s
