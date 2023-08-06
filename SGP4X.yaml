@@ -1,0 +1,46 @@
+# https://esphome.io/components/sensor/sgp4x.html
+
+esphome:
+  name: sgp4x
+
+# esp32:
+#   board: esp32-c3-devkitm-1
+#   framework:
+#     type: esp-idf
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  password: !secret ota_password
+
+wifi:
+  networks:
+    - ssid: !secret wifi_ssid_302
+      password: !secret wifi_password_302
+    - ssid: !secret wifi_ssid_501
+      password: !secret wifi_password_501
+  ap:
+    ssid: "fallback-ap"
+    password: !secret fallback_ap_password
+
+captive_portal:
+
+i2c:
+  sda: 21
+  scl: 22
+  frequency: 100kHz
+
+sensor:
+  - platform: sgp4x
+    voc:
+      name: "VOC Index"
+    nox:
+      name: "NOx Index"
