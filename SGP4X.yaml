@@ -44,10 +44,15 @@ sensor:
       name: "VOC Index"
     nox:
       name: "NOx Index"
+    compensation:
+      humidity_source: dht22_humi
+      temperature_source: dht22_temp
   - platform: dht
     pin: 16
     temperature:
       name: "DHT22 Temperature"
+      id: dht22_temp
     humidity:
       name: "DHT22 Humidity"
+      id: dht22_humi
     update_interval: 60s
