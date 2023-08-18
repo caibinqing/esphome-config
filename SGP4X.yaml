@@ -85,3 +85,20 @@ display:
 time:
   - platform: homeassistant
     id: ha_time
+
+switch:
+  - platform: template
+    name: "LCD Backlight"
+    # lambda: |-
+    #   if (id(mydisplay).state) {
+    #     return true;
+    #   } else {
+    #     return false;
+    #   }
+    assumed_state: true
+    turn_on_action:
+      - lambda: |-
+          id(mydisplay).backlight();
+    turn_off_action:
+      - lambda: |-
+          id(mydisplay).no_backlight();
