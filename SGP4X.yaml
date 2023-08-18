@@ -1,4 +1,6 @@
-# https://esphome.io/components/sensor/sgp4x.html
+# https://esphome.io/components/sensor/sgp4x
+# https://esphome.io/components/sensor/dht
+# https://esphome.io/components/display/lcd_display
 
 esphome:
   name: sgp4x
@@ -34,13 +36,20 @@ wifi:
 captive_portal:
 
 i2c:
-  sda: 21
-  scl: 22
-  frequency: 100kHz
+  - id: bus_sensor
+    sda: 21
+    scl: 22
+    scan: true
+  - id: bus_lcd
+    sda: 16
+    scl: 17
+    scan: true
 
 sensor:
   - platform: sgp4x
+    i2c_id: bus_sensor
     voc:
+      id: voc
       name: "VOC Index"
     nox:
       name: "NOx Index"
@@ -48,7 +57,7 @@ sensor:
       humidity_source: dht22_humi
       temperature_source: dht22_temp
   - platform: dht
-    pin: 16
+    pin: 18
     temperature:
       name: "DHT22 Temperature"
       id: dht22_temp
@@ -56,3 +65,23 @@ sensor:
       name: "DHT22 Humidity"
       id: dht22_humi
     update_interval: 60s
+
+display:
+  - platform: lcd_pcf8574
+    id: mydisplay
+    i2c_id: bus_lcd
+    dimensions: 16x2
+    address: 0x27
+    lambda: |-
+      it.strftime("%Y.%m.%d   %a%X", id(ha_time).now());
+      if (id(voc).state >= 100) {
+        it.printf(9, 1, "VOC:%.0f", id(voc).state);
+      } else if (id(voc).state >= 10) {
+        it.printf(10, 1, "VOC:%.0f", id(voc).state);
+      } else {
+        it.printf(11, 1, "VOC:%.0f", id(voc).state);
+      }
+
+time:
+  - platform: homeassistant
+    id: ha_time
