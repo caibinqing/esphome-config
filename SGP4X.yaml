@@ -74,12 +74,12 @@ display:
     address: 0x27
     lambda: |-
       it.strftime("%Y.%m.%d   %a%X", id(ha_time).now());
-      if (id(voc).state >= 100) {
-        it.printf(9, 1, "VOC:%.0f", id(voc).state);
-      } else if (id(voc).state >= 10) {
+      if (id(voc).state < 10) {
+        it.printf(11, 1, "VOC:%.0f", id(voc).state);
+      } else if (id(voc).state < 100) {
         it.printf(10, 1, "VOC:%.0f", id(voc).state);
       } else {
-        it.printf(11, 1, "VOC:%.0f", id(voc).state);
+        it.printf(9, 1, "VOC:%.0f", id(voc).state);
       }
 
 time:
