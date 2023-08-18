@@ -1,7 +1,7 @@
-# https://esphome.io/components/sensor/sgp4x.html
+# https://esphome.io/components/sensor/sgp30
 
 esphome:
-  name: sgp4x
+  name: sgp30
 
 # esp32:
 #   board: esp32-c3-devkitm-1
@@ -36,18 +36,15 @@ captive_portal:
 i2c:
   sda: 21
   scl: 22
-  frequency: 100kHz
 
 sensor:
-  - platform: sgp4x
-    voc:
-      name: "VOC Index"
-    nox:
-      name: "NOx Index"
-  - platform: dht
-    pin: 16
-    temperature:
-      name: "DHT22 Temperature"
-    humidity:
-      name: "DHT22 Humidity"
-    update_interval: 60s
+  - platform: sgp30
+    eco2:
+      name: "SGP30 eCO2"
+      accuracy_decimals: 1
+    tvoc:
+      name: "SGP30 TVOC"
+      accuracy_decimals: 1
+    store_baseline: yes
+    address: 0x58
+    update_interval: 1s
