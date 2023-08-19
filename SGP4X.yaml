@@ -121,6 +121,8 @@ binary_sensor:
         - binary_sensor.template.publish:
             id: backlight
             state: ON
+    on_release:
+      then:
         - binary_sensor.template.publish:
             id: backlight
             state: OFF
