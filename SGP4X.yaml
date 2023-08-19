@@ -2,8 +2,19 @@
 # https://esphome.io/components/sensor/dht
 # https://esphome.io/components/display/lcd_display
 
+# https://esphome.io/components/binary_sensor/template
+# https://esphome.io/components/binary_sensor/gpio
+# https://esphome.io/components/button/template
+
+
 esphome:
   name: sgp4x
+  on_boot:
+    priority: -100
+    then:
+      - binary_sensor.template.publish:
+          id: backlight
+          state: OFF
 
 # esp32:
 #   board: esp32-c3-devkitm-1
@@ -86,19 +97,41 @@ time:
   - platform: homeassistant
     id: ha_time
 
-switch:
+binary_sensor:
   - platform: template
+    id: backlight
     name: "LCD Backlight"
-    # lambda: |-
-    #   if (id(mydisplay).state) {
-    #     return true;
-    #   } else {
-    #     return false;
-    #   }
-    assumed_state: true
-    turn_on_action:
-      - lambda: |-
-          id(mydisplay).backlight();
-    turn_off_action:
-      - lambda: |-
-          id(mydisplay).no_backlight();
+    device_class: light
+    filters:
+      - delayed_off: 90s
+    on_press:
+      then:
+        - lambda: |-
+            id(mydisplay).backlight();
+    on_release:
+      then:
+        - lambda: |-
+            id(mydisplay).no_backlight();
+
+  - platform: gpio
+    id: touch_sensor
+    pin: 19
+    on_press:
+      then:
+        - binary_sensor.template.publish:
+            id: backlight
+            state: ON
+        - binary_sensor.template.publish:
+            id: backlight
+            state: OFF
+
+button:
+  - platform: template
+    name: "Turn on Backlight"
+    on_press:
+      - binary_sensor.template.publish:
+          id: backlight
+          state: ON
+      - binary_sensor.template.publish:
+          id: backlight
+          state: OFF
