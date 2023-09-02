@@ -39,7 +39,7 @@ i2c:
 
 bme680_bsec:
   address: 0x77
-  temperature_offset: 4.5
+  temperature_offset: 5
 
 sensor:
   - platform: bme680_bsec
