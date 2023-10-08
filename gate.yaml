@@ -10,21 +10,9 @@ esp32:
 
 logger:
 
-api:
-  encryption:
-    key: !secret api_encryption_key
-
-ota:
-  password: !secret ota_password
-
-wifi:
-  ssid: !secret wifi_ssid_302
-  password: !secret wifi_password_302
-  ap:
-    ssid: "Gate"
-    password: !secret fallback_ap_password
-
-captive_portal:
+<<: !include .wifi.yaml
+<<: !include .api.yaml
+<<: !include .ota.yaml
 
 switch:
 - platform: custom
