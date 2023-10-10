@@ -1,0 +1,6 @@
+substitutions:
+  name: bluetooth-proxy
+  board: nodemcu-32s
+  framework_type: esp-idf
+
+<<: !include BluetoothProxyBase.yaml
