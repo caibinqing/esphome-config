@@ -1,0 +1,32 @@
+esphome:
+  name: light-sensor
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: esp-idf
+
+logger:
+
+<<: !include .wifi.yaml
+<<: !include .api.yaml
+<<: !include .ota.yaml
+
+i2c:
+  sda: 21
+  scl: 22
+
+sensor:
+  - platform: bh1750
+    name: "BH1750 Illuminance"
+    address: 0x23
+    update_interval: 5s
+
+esp32_ble_tracker:
+  # scan_parameters:
+  #   interval: 1100ms
+  #   window: 1100ms
+  #   active: true
+
+bluetooth_proxy:
+  # active: true
