@@ -1,7 +1,7 @@
 # https://esphome.io/components/sensor/bh1750.html
 
 esphome:
-  name: light-sensor
+  name: bh1750
 
 esp32:
   board: nodemcu-32s
