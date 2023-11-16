@@ -52,6 +52,7 @@ sensor:
     compensation:
       humidity_source: dht22_humi
       temperature_source: dht22_temp
+    update_interval: 60s
   - platform: dht
     pin: 18
     temperature:
