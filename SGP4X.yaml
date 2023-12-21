@@ -47,9 +47,9 @@ sensor:
     i2c_id: bus_sensor
     voc:
       id: voc
-      name: "VOC Index"
+      name: "SGP4X VOC Index"
     nox:
-      name: "NOx Index"
+      name: "SGP4X NOx Index"
     compensation:
       humidity_source: dht22_humi
       temperature_source: dht22_temp
