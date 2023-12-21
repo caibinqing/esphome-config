@@ -6,6 +6,7 @@
 # https://esphome.io/components/binary_sensor/gpio
 # https://esphome.io/components/button/template
 
+# https://esphome.io/components/button/output
 
 esphome:
   name: sgp4x
@@ -113,6 +114,11 @@ binary_sensor:
             id: backlight
             state: OFF
 
+output:
+  - platform: gpio
+    pin: 14
+    id: relay
+
 button:
   - platform: template
     name: "Turn on Backlight"
@@ -123,3 +129,8 @@ button:
       - binary_sensor.template.publish:
           id: backlight
           state: OFF
+  - platform: output
+    name: Humidifier Toggle
+    icon: mdi:air-humidifier
+    output: relay
+    duration: 230ms
