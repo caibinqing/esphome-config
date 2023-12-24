@@ -1,5 +1,5 @@
 substitutions:
-  name: bluetooth-proxy
+  name: bluetooth-proxy-32s
   board: nodemcu-32s
   framework_type: esp-idf
 
