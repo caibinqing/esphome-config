@@ -1,7 +1,7 @@
 esphome:
   name: gate01
   includes:
-    - ESP01GateSwitch.h
+    - GateSwitch.h
 
 esp8266:
   board: esp01_1m
@@ -15,8 +15,8 @@ logger:
 switch:
 - platform: custom
   lambda: |-
-    auto gate_switch = new ESP01GateSwitch();
+    auto gate_switch = new GateSwitch();
     App.register_component(gate_switch);
     return {gate_switch};
   switches:
-    name: "楼道门01"
+    name: "楼道门"
