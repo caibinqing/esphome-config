@@ -1,0 +1,51 @@
+esphome:
+  name: auto-watering
+  friendly_name: 自动浇水系统
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+logger:
+
+<<: !include .wifi.yaml
+<<: !include .api.yaml
+<<: !include .ota.yaml
+
+binary_sensor:
+  - platform: gpio
+    id: soil
+    name: Soil
+    # friendly_name: 土壤
+    device_class: moisture
+    pin:
+      number: GPIO16
+      inverted: true
+      mode:
+        input: true
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+  - platform: gpio
+    id: water_box
+    name: Water Box
+    # friendly_name: 水仓
+    device_class: moisture
+    pin:
+      number: GPIO17
+      inverted: true
+      mode:
+        input: true
+    filters:
+      - delayed_on: 10ms
+      - delayed_off: 10ms
+
+switch:
+  - platform: gpio
+    id: pump
+    name: Water Pump
+    # friendly_name: 水泵
+    pin:
+      number: GPIO27
+    icon: "mdi:water-pump"
