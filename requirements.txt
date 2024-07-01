@@ -1,3 +1,4 @@
 esphome
+setuptools
 python-magic-bin
 pillow==10.2.0
