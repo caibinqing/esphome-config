@@ -272,13 +272,13 @@ display:
 
       // 缺料提示
       if (id(missing_feed).state) {
-        it.print(w/2, (h-28)/3, id(roboto_12), id(red), TextAlign::CENTER, "Missing Food");
+        it.print(w/2, (h-28)/3 + 14, id(roboto_12), id(red), TextAlign::CENTER, "Missing Food");
       } else {
-        it.print(w/2, (h-28)/3, id(roboto_12), id(green), TextAlign::CENTER, "Enough Food");
+        it.print(w/2, (h-28)/3 + 14, id(roboto_12), id(green), TextAlign::CENTER, "Enough Food");
       }
 
       // Press to feed
-      it.print(w/2, (h-28)*2/3, id(roboto_12), id(white), TextAlign::CENTER, "Press to Feed");
+      it.print(w/2, (h-28)*2/3 + 14, id(roboto_12), id(white), TextAlign::CENTER, "Press to Feed");
 
       // // 上次喂食时间
       // time_t last_feed_time = id(last_feed_time).state;
