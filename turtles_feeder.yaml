@@ -1,0 +1,288 @@
+substitutions:
+  PIN_BUTTON: GPIO41
+  PIN_PALLET: GPIO8
+  PIN_PHOTOTRANSISTOR: GPIO6
+  PIN_INFRARED_LED: GPIO7
+  PIN_INA_SWITCH: GPIO5
+  # PIN_INB_SWITCH: GPIO5
+
+
+esphome:
+  name: turtles_feeder
+  friendly_name: Turtles Feeder
+  on_boot:
+    priority: 225
+    then:
+      - script.execute: check_food
+      - if:
+          condition:
+            lambda: 'return id(pallet).state;'
+          then:
+            - switch.turn_on: ina_switch
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  framework:
+    type: arduino
+
+logger:
+
+<<: !include .wifi.yaml
+<<: !include .api.yaml
+<<: !include .ota.yaml
+
+script:
+  - id: check_food  # 检查是否还有食物
+    then:
+      - switch.turn_on: infrared_led
+      - delay: 100ms
+      - if:
+          condition:
+            lambda: 'return id(phototransistor).state;'
+          then:
+            - binary_sensor.template.publish:
+                id: missing_feed
+                state: OFF
+          else:
+            - binary_sensor.template.publish:
+                id: missing_feed
+                state: ON
+      - delay: 50ms
+      - switch.turn_off: infrared_led
+    mode: single
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+button:
+  # 喂食
+  - platform: template
+    name: "Feed"
+    icon: "mdi:pot-mix"
+    on_press:
+      then:
+        - switch.toggle: ina_switch
+  # 检查库存
+  - platform: template
+    name: "Check Food"
+    icon: "mdi:beaker-question-outline"
+    on_press:
+      then:
+        - script.execute: check_food
+    entity_category: diagnostic
+
+binary_sensor:
+  # 连接状态
+  - platform: status
+    id: system_status
+    name: "Status"
+
+  # 缺料提示
+  - platform: template
+    id: missing_feed
+    name: "Missing Food"
+    icon: "mdi:beaker-alert-outline"
+    device_class: problem
+
+  # 屏幕按钮
+  - platform: gpio
+    id: screen_button
+    pin:
+      number: $PIN_BUTTON
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    filters:
+      - delayed_off: 10ms
+    on_press:  # 当按钮按下时，执行一次喂食
+      then:
+        - switch.toggle: ina_switch
+    # name: "Button"
+    # icon: "mdi:gesture-tap-button"
+    # entity_category: diagnostic
+    # disabled_by_default: true
+
+  # 微动开关，ON表示托盘弹出、代表正在喂食。
+  - platform: gpio
+    id: pallet
+    pin:
+      number: $PIN_PALLET
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+    filters:
+      - delayed_off: 10ms
+    on_press: # 当托盘推出时
+      then:
+        # 记录喂食时间
+        - sensor.template.publish:
+            id: last_feed_time
+            state: !lambda 'return id(ha_time).now().timestamp;'
+    on_release: # 当托盘收回时
+      then:
+        - delay: 1800ms
+        # 关闭电机
+        - switch.turn_off: ina_switch
+        # 然后打开红外发射，检测是否还有库存
+        - script.execute: check_food
+    # name: "Feeding" # 正在喂食
+    # icon: "mdi:coffee-to-go-outline"
+    # entity_category: diagnostic
+    # disabled_by_default: true
+
+  # 红外接收管，ON表示有障碍、不缺料
+  - platform: gpio
+    id: phototransistor
+    pin: $PIN_PHOTOTRANSISTOR
+
+i2c:
+  scl: GPIO39
+  sda: GPIO38
+
+sensor:
+  # 上次喂食时间
+  - platform: template
+    id: last_feed_time
+    name: "Last Feeding Time"
+    icon: "mdi:clock-time-four-outline"
+    accuracy_decimals: 0
+    device_class: "TIMESTAMP"
+
+  # 芯片温度
+  - platform: mpu6886  # https://esphome.io/components/sensor/mpu6886.html
+    address: 0x68
+    temperature:
+      id: chip_temperature
+      name: "MPU6886 Temperature"
+      entity_category: diagnostic
+
+switch:
+  # 红外发射管
+  - platform: gpio
+    id: infrared_led
+    pin: $PIN_INFRARED_LED
+    # name: "Infrared LED"
+    # icon: "mdi:remote"
+    # entity_category: diagnostic
+    # disabled_by_default: true
+
+  # 电机正转
+  - platform: gpio
+    id: ina_switch
+    pin: $PIN_INA_SWITCH
+    # name: "IN-A Switch"
+    # icon: "mdi:reload"
+    # entity_category: diagnostic
+    # disabled_by_default: true
+
+  # # 电机反转
+  # - platform: gpio
+  #   id: inb_switch
+  #   pin: $PIN_INB_SWITCH
+  #   # name: "IN-B Switch"
+  #   # icon: "mdi:restore"
+  #   # entity_category: diagnostic
+  #   # disabled_by_default: true
+
+  # 屏幕背光
+  - platform: gpio
+    id: backlight
+    name: "Back Light"
+    icon: "mdi:fit-to-screen"
+    pin: GPIO16
+    restore_mode: ALWAYS_ON
+    entity_category: config
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      id: ip_address
+
+spi:
+  clk_pin: GPIO17
+  mosi_pin: GPIO21
+
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_32
+    size: 32
+  - file: "gfonts://Roboto"
+    id: roboto_24
+    size: 24
+  - file: "gfonts://Roboto"
+    id: roboto_12
+    size: 12
+
+color:
+  - id: red
+    red: 100%
+    green: 0%
+    blue: 0%
+  - id: yellow
+    red: 100%
+    green: 100%
+    blue: 0%
+  - id: green
+    red: 0%
+    green: 100%
+    blue: 0%
+  - id: blue
+    red: 0%
+    green: 0%
+    blue: 100%
+  - id: gray
+    red: 50%
+    green: 50%
+    blue: 50%
+  - id: white
+    red: 100%
+    green: 100%
+    blue: 100%
+
+display:
+  # https://github.com/esphome/feature-requests/issues/2332#issuecomment-1925091376
+  - platform: ili9xxx  # https://esphome.io/components/display/ili9xxx
+    model: ST7789V
+    cs_pin: GPIO15
+    dc_pin: GPIO33
+    reset_pin: GPIO34
+    rotation: 270
+    invert_colors: true
+    update_interval: 1s
+    dimensions:
+      height: 128
+      width: 128
+      offset_height: 1
+      offset_width: 2
+    lambda: |-
+      auto w = it.get_width();
+      auto h = it.get_height();
+
+      // 标题
+      it.print(1, 1, id(roboto_12), id(yellow), TextAlign::TOP_LEFT, "ESPHome");
+      if (id(system_status).state) {
+        it.print(w-2, 1, id(roboto_12), id(green), TextAlign::TOP_RIGHT, id(ip_address).state.c_str());
+      } else {
+        it.print(w-2, 1, id(roboto_12), id(red), TextAlign::TOP_RIGHT, "Offline");
+      }
+
+      // 缺料提示
+      if (id(missing_feed).state) {
+        it.print(w/2, h/3, id(roboto_12), id(red), TextAlign::CENTER, "Missing Food");
+      } else {
+        it.print(w/2, h/3, id(roboto_12), id(green), TextAlign::CENTER, "Enough Food");
+      }
+
+      // Press to feed
+      it.print(w/2, h*2/3, id(roboto_12), id(white), TextAlign::CENTER, "Press to Feed");
+
+      // // 上次喂食时间
+      // time_t last_feed_time = id(last_feed_time).state;
+      // it.strftime(w/2, 32, id(roboto_24), id(white), TextAlign::TOP_CENTER, "Last: %H:%M:%S", localtime(&last_feed_time));
+
+      // 芯片温度
+      it.printf(w-2 , h-2, id(roboto_12), id(white), TextAlign::BOTTOM_RIGHT, "Chip Temp: %.1f°C", id(chip_temperature).state);
