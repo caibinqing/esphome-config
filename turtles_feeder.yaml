@@ -148,7 +148,7 @@ sensor:
   - platform: template
     id: last_feed_time
     name: "Last Feeding Time"
-    icon: "mdi:clock-time-four-outline"
+    icon: "mdi:invoice-text-clock-outline"
     accuracy_decimals: 0
     device_class: "TIMESTAMP"
 
