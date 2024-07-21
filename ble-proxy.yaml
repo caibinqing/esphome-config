@@ -1,12 +1,11 @@
 esphome:
-  name: esp32-s3-zero-ble-proxy
-  friendly_name: ESP32-S3-Zero BLE Proxy
+  name: ble-proxy-s3
+  friendly_name: BLE Proxy S3
 
 esp32:
   board: esp32-s3-devkitc-1
   framework:
     type: arduino
-  flash_size: 4MB
   variant: esp32s3
 
 logger:
@@ -16,14 +15,15 @@ logger:
 <<: !include .ota.yaml
 
 esp32_ble_tracker:
-  # scan_parameters:
-  #   interval: 1100ms
-  #   window: 1100ms
-  #   active: true
 
 bluetooth_proxy:
-  # active: true
+  active: true
+
+time:
+  - platform: homeassistant
+    id: ha_time
 
 sensor:
   - platform: uptime
+    type: timestamp
     name: Uptime

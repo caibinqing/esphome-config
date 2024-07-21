@@ -1,7 +1,0 @@
-substitutions:
-  name: bluetooth-proxy-c3
-  board: esp32-c3-devkitm-1
-  # framework_type: esp-idf
-  framework_type: arduino
-
-<<: !include BluetoothProxyBase.yaml
