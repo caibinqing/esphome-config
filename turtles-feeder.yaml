@@ -160,6 +160,14 @@ sensor:
       name: "MPU6886 Temperature"
       entity_category: diagnostic
 
+  - platform: uptime
+    type: timestamp
+    name: "Uptime"
+
+  - platform: homeassistant
+    entity_id: sensor.1c34f1a71c7a_temperature
+    id: water_temperature
+
 switch:
   # 红外发射管
   - platform: gpio
@@ -270,15 +278,17 @@ display:
         it.print(w-2, 1, id(roboto_12), id(red), TextAlign::TOP_RIGHT, "Offline");
       }
 
+      it.graph(0, 17, id(water_temperature_graph), id(green));
+
       // 缺料提示
       if (id(missing_feed).state) {
-        it.print(w/2, (h-28)/3 + 14, id(roboto_12), id(red), TextAlign::CENTER, "Missing Food");
+        it.print(w/2, 83, id(roboto_12), id(red), TextAlign::TOP_CENTER, "Missing Food");
       } else {
-        it.print(w/2, (h-28)/3 + 14, id(roboto_12), id(green), TextAlign::CENTER, "Enough Food");
+        it.print(w/2, 83, id(roboto_12), id(green), TextAlign::TOP_CENTER, "Food Enough");
       }
 
       // Press to feed
-      it.print(w/2, (h-28)*2/3 + 14, id(roboto_12), id(white), TextAlign::CENTER, "Press to Feed");
+      it.print(w/2, 98, id(roboto_12), id(white), TextAlign::TOP_CENTER, "Press to Feed");
 
       // // 上次喂食时间
       // time_t last_feed_time = id(last_feed_time).state;
@@ -286,3 +296,13 @@ display:
 
       // 芯片温度
       it.printf(w-2 , h-2, id(roboto_12), id(gray), TextAlign::BOTTOM_RIGHT, "Chip Temp: %.1f°C", id(chip_temperature).state);
+
+graph:
+  - id: water_temperature_graph
+    duration: 1h
+    width: 128
+    height: 64
+    traces:
+      - sensor: water_temperature
+        line_type: SOLID
+        continuous: true
