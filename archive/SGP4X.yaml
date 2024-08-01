@@ -1,0 +1,136 @@
+# https://esphome.io/components/sensor/sgp4x
+# https://esphome.io/components/sensor/dht
+# https://esphome.io/components/display/lcd_display
+
+# https://esphome.io/components/binary_sensor/template
+# https://esphome.io/components/binary_sensor/gpio
+# https://esphome.io/components/button/template
+
+# https://esphome.io/components/button/output
+
+esphome:
+  name: sgp4x
+  on_boot:
+    priority: -100
+    then:
+      - binary_sensor.template.publish:
+          id: backlight
+          state: OFF
+
+# esp32:
+#   board: esp32-c3-devkitm-1
+#   framework:
+#     type: esp-idf
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+logger:
+
+<<: !include .wifi.yaml
+<<: !include .api.yaml
+<<: !include .ota.yaml
+
+i2c:
+  - id: bus_sensor
+    sda: 21
+    scl: 22
+    scan: true
+  - id: bus_lcd
+    sda: 16
+    scl: 17
+    scan: true
+
+sensor:
+  - platform: sgp4x
+    i2c_id: bus_sensor
+    voc:
+      id: voc
+      name: "SGP4X VOC Index"
+    nox:
+      name: "SGP4X NOx Index"
+    compensation:
+      humidity_source: dht22_humi
+      temperature_source: dht22_temp
+    update_interval: 60s
+  - platform: dht
+    pin: 18
+    temperature:
+      name: "DHT22 Temperature"
+      id: dht22_temp
+    humidity:
+      name: "DHT22 Humidity"
+      id: dht22_humi
+    update_interval: 60s
+
+display:
+  - platform: lcd_pcf8574
+    id: mydisplay
+    i2c_id: bus_lcd
+    dimensions: 16x2
+    address: 0x27
+    lambda: |-
+      it.strftime("%Y.%m.%d   %a%X", id(ha_time).now());
+      if (id(voc).state < 10) {
+        it.printf(11, 1, "VOC:%.0f", id(voc).state);
+      } else if (id(voc).state < 100) {
+        it.printf(10, 1, "VOC:%.0f", id(voc).state);
+      } else {
+        it.printf(9, 1, "VOC:%.0f", id(voc).state);
+      }
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+binary_sensor:
+  - platform: template
+    id: backlight
+    name: "LCD Backlight"
+    device_class: light
+    filters:
+      - delayed_off: 90s
+    on_press:
+      then:
+        - lambda: |-
+            id(mydisplay).backlight();
+    on_release:
+      then:
+        - lambda: |-
+            id(mydisplay).no_backlight();
+
+  - platform: gpio
+    id: touch_sensor
+    pin: 19
+    on_press:
+      then:
+        - binary_sensor.template.publish:
+            id: backlight
+            state: ON
+    on_release:
+      then:
+        - binary_sensor.template.publish:
+            id: backlight
+            state: OFF
+
+output:
+  - platform: gpio
+    pin: 14
+    id: relay
+
+button:
+  - platform: template
+    name: "Turn on Backlight"
+    on_press:
+      - binary_sensor.template.publish:
+          id: backlight
+          state: ON
+      - binary_sensor.template.publish:
+          id: backlight
+          state: OFF
+  - platform: output
+    name: Humidifier Toggle
+    icon: mdi:air-humidifier
+    output: relay
+    duration: 230ms

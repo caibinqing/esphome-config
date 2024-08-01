@@ -1,13 +1,12 @@
 esphome:
-  name: ble-proxy-s3
-  friendly_name: BLE Proxy S3
+  name: ble-proxy-1051
+  friendly_name: BLE Proxy 1051
 
 esp32:
-  board: esp32-s3-devkitc-1
+  board: nodemcu-32s
   framework:
-    type: arduino
+    type: esp-idf
     version: latest
-  variant: esp32s3
 
 logger:
 
@@ -24,7 +23,24 @@ time:
   - platform: homeassistant
     id: ha_time
 
+i2c:
+  sda: 21
+  scl: 22
+
 sensor:
+  - platform: dht
+    pin: 16
+    temperature:
+      name: "DHT11 Temperature"
+    humidity:
+      name: "DHT11 Humidity"
+    update_interval: 60s
+
+  - platform: bh1750
+    name: "BH1750 Illuminance"
+    address: 0x23
+    update_interval: 5s
+
   - platform: uptime
     type: timestamp
     name: "Uptime"

@@ -6,6 +6,7 @@ esp32:
   board: esp32dev
   framework:
     type: arduino
+    version: latest
 
 logger:
 
@@ -39,3 +40,18 @@ light:
     output: led
     name: Flash Light
     icon: mdi:spotlight
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+sensor:
+  - platform: uptime
+    type: timestamp
+    name: "Uptime"
+
+  - platform: wifi_signal
+    name: "WiFi Signal"
+
+  - platform: internal_temperature
+    name: "Internal Temperature"

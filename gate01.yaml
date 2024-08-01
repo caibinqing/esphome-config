@@ -55,3 +55,15 @@ lock:
       - binary_sensor.template.publish:
           id: lock_state
           state: OFF
+
+time:
+  - platform: homeassistant
+    id: ha_time
+
+sensor:
+  - platform: uptime
+    type: timestamp
+    name: "Uptime"
+
+  - platform: wifi_signal
+    name: "WiFi Signal"

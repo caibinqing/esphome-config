@@ -25,6 +25,7 @@ esp32:
   variant: esp32s3
   framework:
     type: arduino
+    version: latest
 
 logger:
 
@@ -156,17 +157,27 @@ sensor:
   - platform: mpu6886  # https://esphome.io/components/sensor/mpu6886.html
     address: 0x68
     temperature:
-      id: chip_temperature
+      id: mpu6886_temperature
       name: "MPU6886 Temperature"
       entity_category: diagnostic
+
+  - platform: internal_temperature
+    id: esp_temperature
+    name: "Internal Temperature"
 
   - platform: uptime
     type: timestamp
     name: "Uptime"
 
-  - platform: homeassistant
-    entity_id: sensor.1c34f1a71c7a_temperature
-    id: water_temperature
+  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+    name: "WiFi Signal"
+    id: wifi_signal_db
+
+  - platform: copy # Reports the WiFi signal strength in %
+    id: wifi_signal_percent
+    source_id: wifi_signal_db
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
 
 switch:
   # 红外发射管
@@ -278,7 +289,7 @@ display:
         it.print(w-2, 1, id(roboto_12), id(red), TextAlign::TOP_RIGHT, "Offline");
       }
 
-      it.graph(0, 17, id(water_temperature_graph), id(green));
+      it.graph(0, 17, id(my_graph), id(green));
 
       // 缺料提示
       if (id(missing_feed).state) {
@@ -295,14 +306,14 @@ display:
       // it.strftime(w/2, 32, id(roboto_24), id(white), TextAlign::TOP_CENTER, "Last: %H:%M:%S", localtime(&last_feed_time));
 
       // 芯片温度
-      it.printf(w-2 , h-2, id(roboto_12), id(gray), TextAlign::BOTTOM_RIGHT, "Chip Temp: %.1f°C", id(chip_temperature).state);
+      it.printf(w-2 , h-2, id(roboto_12), id(gray), TextAlign::BOTTOM_RIGHT, "Chip Temp: %.1f°C", id(esp_temperature).state);
 
 graph:
-  - id: water_temperature_graph
+  - id: my_graph
     duration: 1h
     width: 128
     height: 64
     traces:
-      - sensor: water_temperature
+      - sensor: wifi_signal_percent
         line_type: SOLID
         continuous: true

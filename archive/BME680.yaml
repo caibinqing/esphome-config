@@ -1,0 +1,98 @@
+# https://esphome.io/components/sensor/bme680_bsec.html
+
+esphome:
+  name: bme680
+
+# esp32:
+#   board: esp32-c3-devkitm-1
+#   framework:
+#     type: esp-idf
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+logger:
+
+<<: !include .wifi.yaml
+<<: !include .api.yaml
+<<: !include .ota.yaml
+
+i2c:
+  sda: 21
+  scl: 22
+
+bme680_bsec:
+  # i2c address
+  # -----------
+  # Common values are:
+  # - 0x76
+  # - 0x77
+  # Default: 0x76
+  address: 0x77
+
+  # Temperature offset
+  # ------------------
+  # Useful if device is in enclosure and reads too high
+  # For example, if it reads 5C too high, set this to 5
+  # This also corrects the relative humidity readings
+  # Default: 0
+  temperature_offset: 4
+
+  # Sample rate
+  # -----------
+  # Available options:
+  # - lp (low power - samples every 3 seconds)
+  # - ulp (ultra-low power - samples every 5 minutes)
+  # Default: lp
+  sample_rate: ulp
+
+sensor:
+  - platform: bme680_bsec
+    temperature:
+      name: "BME680 Temperature"
+    pressure:
+      name: "BME680 Pressure"
+    humidity:
+      name: "BME680 Humidity"
+    iaq:
+      name: "BME680 IAQ"
+      id: iaq
+    co2_equivalent:
+      name: "BME680 CO2 Equivalent"
+    breath_voc_equivalent:
+      name: "BME680 Breath VOC Equivalent"
+
+# text_sensor:
+#   - platform: bme680_bsec
+#     iaq_accuracy:
+#       name: "BME680 IAQ Accuracy"
+
+#   - platform: template
+#     name: "BME680 IAQ Classification"
+#     icon: "mdi:checkbox-marked-circle-outline"
+#     lambda: |-
+#       if ( int(id(iaq).state) <= 50) {
+#         return {"Excellent"};
+#       }
+#       else if (int(id(iaq).state) >= 51 && int(id(iaq).state) <= 100) {
+#         return {"Good"};
+#       }
+#       else if (int(id(iaq).state) >= 101 && int(id(iaq).state) <= 150) {
+#         return {"Lightly polluted"};
+#       }
+#       else if (int(id(iaq).state) >= 151 && int(id(iaq).state) <= 200) {
+#         return {"Moderately polluted"};
+#       }
+#       else if (int(id(iaq).state) >= 201 && int(id(iaq).state) <= 250) {
+#         return {"Heavily polluted"};
+#       }
+#       else if (int(id(iaq).state) >= 251 && int(id(iaq).state) <= 350) {
+#         return {"Severely polluted"};
+#       }
+#       else if (int(id(iaq).state) >= 351) {
+#         return {"Extremely polluted"};
+#       }
+#       else {
+#         return {"error"};
+#       }

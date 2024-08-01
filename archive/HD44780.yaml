@@ -1,0 +1,61 @@
+# https://esphome.io/components/display/lcd_display.html
+# HD44780
+# LCD1602
+# PCF8574
+
+esphome:
+  name: lcd
+
+# esp32:
+#   board: esp32-c3-devkitm-1
+#   framework:
+#     type: esp-idf
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+logger:
+
+<<: !include .wifi.yaml
+<<: !include .api.yaml
+<<: !include .ota.yaml
+
+i2c:
+  sda: 21
+  scl: 22
+
+display:
+  - platform: lcd_pcf8574
+    id: mydisplay
+    dimensions: 16x2
+    address: 0x27
+    lambda: |-
+      it.strftime("%Y.%m.%d      %a     %X", id(my_time).now());
+
+time:
+  - platform: homeassistant
+    id: my_time
+
+binary_sensor:
+  - platform: gpio
+    on_press:
+      then:
+        - binary_sensor.template.publish:
+            id: backlight
+            state: ON
+        - binary_sensor.template.publish:
+            id: backlight
+            state: OFF
+  - platform: template
+    id: backlight
+    filters:
+      - delayed_off: 90s
+    on_press:
+      then:
+        - lambda: |-
+            id(mydisplay).backlight();
+    on_release:
+      then:
+        - lambda: |-
+            id(mydisplay).no_backlight();
