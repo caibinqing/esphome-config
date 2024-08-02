@@ -23,6 +23,11 @@ binary_sensor:
   - platform: template
     id: lock_state
 
+  # DIAGNOSTIC
+  - platform: status
+    id: system_status
+    name: "Status"
+
 lock:
   - platform: template
     name: None
@@ -57,13 +62,16 @@ lock:
           state: OFF
 
 time:
+  # DIAGNOSTIC
   - platform: homeassistant
     id: ha_time
 
 sensor:
+  # DIAGNOSTIC
   - platform: uptime
     type: timestamp
     name: "Uptime"
 
+  # DIAGNOSTIC
   - platform: wifi_signal
     name: "WiFi Signal"

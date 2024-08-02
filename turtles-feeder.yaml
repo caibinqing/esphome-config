@@ -75,7 +75,7 @@ button:
     entity_category: diagnostic
 
 binary_sensor:
-  # 连接状态
+  # DIAGNOSTIC
   - platform: status
     id: system_status
     name: "Status"
@@ -153,7 +153,7 @@ sensor:
     accuracy_decimals: 0
     device_class: "TIMESTAMP"
 
-  # 芯片温度
+  # DIAGNOSTIC 芯片温度
   - platform: mpu6886  # https://esphome.io/components/sensor/mpu6886.html
     address: 0x68
     temperature:
@@ -161,19 +161,23 @@ sensor:
       name: "MPU6886 Temperature"
       entity_category: diagnostic
 
+  # DIAGNOSTIC
   - platform: internal_temperature
     id: esp_temperature
     name: "Internal Temperature"
 
+  # DIAGNOSTIC
   - platform: uptime
     type: timestamp
     name: "Uptime"
 
-  - platform: wifi_signal # Reports the WiFi signal strength/RSSI in dB
+  # DIAGNOSTIC
+  - platform: wifi_signal
     name: "WiFi Signal"
     id: wifi_signal_db
 
-  - platform: copy # Reports the WiFi signal strength in %
+  # DIAGNOSTIC
+  - platform: copy
     id: wifi_signal_percent
     source_id: wifi_signal_db
     filters:

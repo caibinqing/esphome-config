@@ -43,14 +43,22 @@ binary_sensor:
         input: true
         # pullup: true
 
+  # DIAGNOSTIC
+  - platform: status
+    id: system_status
+    name: "Status"
+
 time:
+  # DIAGNOSTIC
   - platform: homeassistant
     id: ha_time
 
 sensor:
+  # DIAGNOSTIC
   - platform: uptime
     type: timestamp
     name: "Uptime"
 
+  # DIAGNOSTIC
   - platform: wifi_signal
     name: "WiFi Signal"
