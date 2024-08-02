@@ -48,5 +48,5 @@ sensor:
   - platform: wifi_signal
     name: "WiFi Signal"
 
-  - platform: internal_temperature
-    name: "Internal Temperature"
+  # - platform: internal_temperature
+  #   name: "Internal Temperature"

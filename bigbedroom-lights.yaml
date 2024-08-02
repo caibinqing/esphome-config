@@ -6,9 +6,6 @@ esp32:
   framework:
     type: arduino
 
-# esp8266:
-#   board: nodemcuv2
-
 logger:
 
 <<: !include .wifi.yaml
@@ -46,29 +43,14 @@ binary_sensor:
         input: true
         # pullup: true
 
-# # ESP8266
-# binary_sensor:
-#   - platform: gpio
-#     name: "A"
-#     pin:
-#       number: D1
-#       mode:
-#         input: true
-#   - platform: gpio
-#     name: "B"
-#     pin:
-#       number: D2
-#       mode:
-#         input: true
-#   - platform: gpio
-#     name: "C"
-#     pin:
-#       number: D5
-#       mode:
-#         input: true
-#   - platform: gpio
-#     name: "D"
-#     pin:
-#       number: D6
-#       mode:
-#         input: true
+time:
+  - platform: homeassistant
+    id: ha_time
+
+sensor:
+  - platform: uptime
+    type: timestamp
+    name: "Uptime"
+
+  - platform: wifi_signal
+    name: "WiFi Signal"
