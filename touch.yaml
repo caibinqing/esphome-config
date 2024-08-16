@@ -1,0 +1,118 @@
+esphome:
+  name: touch
+
+rp2040:
+  board: rpipicow
+  framework:
+    platform_version: https://github.com/maxgerhardt/platform-raspberrypi.git
+
+logger:
+
+<<: !include .wifi.yaml
+<<: !include .api.yaml
+<<: !include .ota.yaml
+
+time:
+  # DIAGNOSTIC
+  - platform: homeassistant
+    id: ha_time
+
+sensor:
+  # DIAGNOSTIC
+  - platform: uptime
+    type: timestamp
+    name: "Uptime"
+
+  # DIAGNOSTIC
+  - platform: wifi_signal
+    name: "WiFi Signal"
+
+spi:
+  clk_pin: GPIO10
+  mosi_pin: GPIO11
+
+binary_sensor:
+  # DIAGNOSTIC
+  - platform: status
+    id: system_status
+    name: "Status"
+
+  - platform: gpio
+    pin: GPIO2
+    id: btn1
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+    on_press:
+      - if:
+          condition:
+            display_menu.is_active: my_graphical_display_menu
+          then:
+            - display_menu.down: my_graphical_display_menu
+
+  - platform: gpio
+    pin: GPIO3
+    id: btn2
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+    on_press:
+      - if:
+          condition:
+            display_menu.is_active: my_graphical_display_menu
+          then:
+            - display_menu.up: my_graphical_display_menu
+
+  - platform: gpio
+    pin: GPIO15
+    id: btn3
+    filters:
+      - delayed_on: 30ms
+      - delayed_off: 30ms
+    on_press:
+      - if:
+          condition:
+            display_menu.is_active: my_graphical_display_menu
+          then:
+            - display_menu.enter: my_graphical_display_menu
+          else:
+            - display_menu.show:  my_graphical_display_menu
+
+graphical_display_menu:
+  id: my_graphical_display_menu
+  display: my_display_component
+  font: roboto_12
+  on_redraw:
+    then:
+      component.update: my_display_component
+  active: false
+  mode: rotary
+  items:
+    - type: Label
+      text: Menu Item 1
+    - type: Label
+      text: Menu Item 2
+
+display:
+  - platform: waveshare_epaper
+    id: my_display_component
+    model: 2.90in
+    cs_pin: GPIO9
+    dc_pin: GPIO8
+    busy_pin: GPIO13
+    reset_pin: GPIO12
+    pages:
+    - id: graph_page
+      lambda: |-
+        it.print(0, 0, id(roboto_12), "My menu is not currently active");
+
+font:
+  - file: "gfonts://Roboto"
+    id: roboto_32
+    size: 32
+  - file: "gfonts://Roboto"
+    id: roboto_24
+    size: 24
+  - file: "gfonts://Roboto"
+    id: roboto_12
+    size: 12
