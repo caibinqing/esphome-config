@@ -1,24 +1,20 @@
+# https://esphome.io/components/sensor/sfa30
 esphome:
-  name: ble-proxy-s3
-  friendly_name: BLE Proxy S3
+  name: sfa30
+  friendly_name: SFA30
 
 esp32:
   board: esp32-s3-devkitc-1
+  variant: esp32s3
   framework:
     type: arduino
     version: latest
-  variant: esp32s3
 
 logger:
 
 <<: !include .wifi.yaml
 <<: !include .api.yaml
 <<: !include .ota.yaml
-
-esp32_ble_tracker:
-
-bluetooth_proxy:
-  active: true
 
 binary_sensor:
   # DIAGNOSTIC
@@ -40,6 +36,10 @@ time:
   - platform: homeassistant
     id: ha_time
 
+i2c:
+  sda: GPIO5
+  scl: GPIO6
+
 sensor:
   # DIAGNOSTIC
   - platform: uptime
@@ -49,34 +49,23 @@ sensor:
   # DIAGNOSTIC
   - platform: wifi_signal
     name: "WiFi Signal"
+    id: wifi_signal_db
 
   # DIAGNOSTIC
   - platform: internal_temperature
+    id: esp_temperature
     name: "Internal Temperature"
 
-  - platform: sgp4x
-    voc:
-      id: voc
-      name: "SGP4X VOC Index"
-    nox:
-      name: "SGP4X NOx Index"
-    compensation:
-      humidity_source: dht22_humi
-      temperature_source: dht22_temp
-    update_interval: 31s
-
-  - platform: dht
-    pin: 42
+  - platform: sfa30
+    formaldehyde:
+      name: "Formaldehyde"
     temperature:
-      name: "DHT22 Temperature"
-      id: dht22_temp
+      name: "Temperature"
     humidity:
-      name: "DHT22 Humidity"
-      id: dht22_humi
-      accuracy_decimals: 1
-    update_interval: 29s
+      name: "Humidity"
+    update_interval: 15s
 
-i2c:
-  - sda: 47
-    scl: 48
-    scan: true
+esp32_ble_tracker:
+
+bluetooth_proxy:
+  active: true

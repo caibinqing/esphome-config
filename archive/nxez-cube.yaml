@@ -1,13 +1,12 @@
 # https://esphome.io/components/display/ssd1306.html
+# https://esphome.io/components/rtttl
 
 esphome:
-  name: ssd1306
-  friendly_name: SSD1306
+  name: nxez-cube
+  friendly_name: NXEZ Cube
 
-esp32:
-  board: esp32-c3-devkitm-1
-  framework:
-    type: arduino
+esp8266:
+  board: d1_mini
 
 logger:
 
@@ -36,18 +35,34 @@ sensor:
   - platform: wifi_signal
     name: "WiFi Signal"
 
-# DIAGNOSTIC
-status_led:
-  pin: GPIO8
+output:
+  - platform: esp8266_pwm
+    pin: GPIO12
+    frequency: 1000 Hz
+    id: rtttl_out
+
+rtttl:
+  output: rtttl_out
+  id: my_rtttl
+  gain: 60%
+  on_finished_playback:
+    - logger.log: 'Song ended!'
+
+button:
+  - platform: template
+    name: "Play Mario"
+    on_press:
+      then:
+        - rtttl.play: "mario:d=4,o=5,b=100:16e6,16e6,32p,8e6,16c6,8e6,8g6,8p,8g,8p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,16p,8c6,16p,8g,16p,8e,16p,8a,8b,16a#,8a,16g.,16e6,16g6,8a6,16f6,8g6,8e6,16c6,16d6,8b,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16c7,16p,16c7,16c7,p,16g6,16f#6,16f6,16d#6,16p,16e6,16p,16g#,16a,16c6,16p,16a,16c6,16d6,8p,16d#6,8p,16d6,8p,16c6"
+
+i2c:
+  sda: D2
+  scl: D1
 
 font:
   - file: "gfonts://Roboto"
     id: roboto_12
     size: 12
-
-i2c:
-  sda: GPIO0
-  scl: GPIO1
 
 text_sensor:
   - platform: homeassistant
@@ -77,13 +92,12 @@ text_sensor:
 
 display:
   - platform: ssd1306_i2c
-    model: "SSD1306 128x64"
+    model: "SH1106 128x64"
     lambda: |-
       it.print(0, 2, id(roboto_12), "Raspberry Pi 4B");
       it.printf(128, 2, id(roboto_12), TextAlign::TOP_RIGHT, "%s°C", id(rpi4_temp).state.c_str());
-      it.printf(0, 18, id(roboto_12), "CPU: %s%%", id(rpi4_cpu).state.c_str());
-      it.printf(128, 18, id(roboto_12), TextAlign::TOP_RIGHT, "MEM: %s%%", id(rpi4_mem).state.c_str());
-      it.printf(0, 34, id(roboto_12), "Load: %s, %s, %s", id(rpi4_load_1m).state.c_str(), id(rpi4_load_5m).state.c_str(), id(rpi4_load_15m).state.c_str());
-      it.printf(0, 50, id(roboto_12), "%sKB/s", id(rpi4_upload).state.c_str());
-      it.print(64, 50, id(roboto_12), TextAlign::TOP_CENTER, "⇅");
-      it.printf(128, 50, id(roboto_12), TextAlign::TOP_RIGHT, "%sKB/s", id(rpi4_download).state.c_str());
+      it.printf(0, 18, id(roboto_12), "CPU: %s%", id(rpi4_cpu).state.c_str());
+      it.printf(128, 18, id(roboto_12), TextAlign::TOP_RIGHT, "MEM: %s%", id(rpi4_mem).state.c_str());
+      it.printf(0, 34, id(roboto_12), "Load: %s %s %s", id(rpi4_load_1m).state.c_str(), id(rpi4_load_5m).state.c_str(), id(rpi4_load_15m).state.c_str());
+      it.printf(0, 50, id(roboto_12), "U:%sKiB/s", id(rpi4_upload).state.c_str());
+      it.printf(128, 50, id(roboto_12), TextAlign::TOP_RIGHT, "D:%sKiB/s", id(rpi4_download).state.c_str());

@@ -153,7 +153,7 @@ sensor:
     accuracy_decimals: 0
     device_class: "TIMESTAMP"
 
-  # DIAGNOSTIC 芯片温度
+  # DIAGNOSTIC 加速度计
   - platform: mpu6886  # https://esphome.io/components/sensor/mpu6886.html
     address: 0x68
     temperature:
