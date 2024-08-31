@@ -59,6 +59,7 @@ sensor:
   - platform: sfa30
     formaldehyde:
       name: "Formaldehyde"
+      device_class: volatile_organic_compounds_parts
     temperature:
       name: "Temperature"
     humidity:
