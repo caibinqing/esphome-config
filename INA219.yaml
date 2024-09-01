@@ -18,7 +18,35 @@ i2c:
   sda: 21
   scl: 22
 
+binary_sensor:
+  # DIAGNOSTIC
+  - platform: status
+    id: system_status
+    name: "Status"
+
+button:
+  # DIAGNOSTIC
+  - platform: restart
+    name: "Restart"
+
+  # DIAGNOSTIC
+  - platform: factory_reset
+    name: "Factory Reset"
+
 sensor:
+  # DIAGNOSTIC
+  - platform: uptime
+    type: timestamp
+    name: "Uptime"
+
+  # DIAGNOSTIC
+  - platform: wifi_signal
+    name: "WiFi Signal"
+
+  # DIAGNOSTIC
+  - platform: internal_temperature
+    name: "Internal Temperature"
+
   - platform: ina219
     address: 0x40
     shunt_resistance: 0.1 ohm
@@ -33,3 +61,8 @@ sensor:
     max_voltage: 4.2V
     max_current: 1.2A
     update_interval: 1s
+
+time:
+  # DIAGNOSTIC
+  - platform: homeassistant
+    id: ha_time

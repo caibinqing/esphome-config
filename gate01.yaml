@@ -20,13 +20,13 @@ switch:
     id: pin_lock
 
 binary_sensor:
-  - platform: template
-    id: lock_state
-
   # DIAGNOSTIC
   - platform: status
     id: system_status
     name: "Status"
+
+  - platform: template
+    id: lock_state
 
 lock:
   - platform: template
