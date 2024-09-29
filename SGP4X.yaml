@@ -1,6 +1,9 @@
+# https://esphome.io/components/sensor/sgp4x
+# https://esphome.io/components/sensor/dht
+
 esphome:
-  name: ble-proxy-s3
-  friendly_name: BLE Proxy S3
+  name: sgp4x
+  friendly_name: SGP4X
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -57,9 +60,9 @@ sensor:
   - platform: sgp4x
     voc:
       id: voc
-      name: "SGP4X VOC Index"
+      name: "VOC Index"
     nox:
-      name: "SGP4X NOx Index"
+      name: "NOx Index"
     compensation:
       humidity_source: dht22_humi
       temperature_source: dht22_temp
