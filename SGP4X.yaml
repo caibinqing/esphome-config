@@ -73,10 +73,18 @@ sensor:
     temperature:
       name: "DHT22 Temperature"
       id: dht22_temp
+      filters:
+        - offset: -1.0
+        # - exponential_moving_average:
+        #     alpha: 0.1
+        #     send_every: 15
+        #     send_first_at: 1
     humidity:
       name: "DHT22 Humidity"
       id: dht22_humi
       accuracy_decimals: 1
+      filters:
+        - offset: 1
     update_interval: 29s
 
 i2c:

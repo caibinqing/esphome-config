@@ -62,8 +62,12 @@ sensor:
       device_class: volatile_organic_compounds_parts
     temperature:
       name: "Temperature"
+      filters:
+        - offset: -4.2
     humidity:
       name: "Humidity"
+      filters:
+        - offset: 12.0
     update_interval: 15s
 
 esp32_ble_tracker:
