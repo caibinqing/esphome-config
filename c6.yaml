@@ -1,11 +1,10 @@
-# https://esphome.io/components/sensor/sfa30
 esphome:
-  name: sfa30
-  friendly_name: SFA30
+  name: c6
+  friendly_name: ESP32C6
 
 esp32:
-  board: seeed_xiao_esp32c3
-  variant: esp32c3
+  board: esp32-c6-devkitc-1
+  variant: esp32c6
   framework:
     type: arduino
     version: latest
@@ -36,10 +35,6 @@ time:
   - platform: homeassistant
     id: ha_time
 
-i2c:
-  sda: GPIO6
-  scl: GPIO7
-
 sensor:
   # DIAGNOSTIC
   - platform: uptime
@@ -55,22 +50,6 @@ sensor:
   - platform: internal_temperature
     id: esp_temperature
     name: "Internal Temperature"
-
-  - platform: sfa30
-    formaldehyde:
-      name: "Formaldehyde"
-      device_class: volatile_organic_compounds_parts
-    temperature:
-      name: "Temperature"
-      filters:
-        - skip_initial: 2
-        - offset: -4.2
-    humidity:
-      name: "Humidity"
-      filters:
-        - skip_initial: 2
-        - offset: 12.0
-    update_interval: 15s
 
 esp32_ble_tracker:
 
