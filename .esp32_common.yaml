@@ -1,0 +1,18 @@
+packages:
+  basic: !include .basic.yaml
+  diagnostics: !include .diagnostics.yaml
+
+
+sensor:
+  - platform: internal_temperature
+    id: chip_temperature
+    name: "Internal Temperature"
+
+
+bluetooth_proxy:
+  active: true
+
+esp32_ble_tracker:
+
+
+#esp32_improv:

@@ -1,3 +1,8 @@
+packages:
+  basic: !include .basic.yaml
+  diagnostics: !include .diagnostics.yaml
+
+
 esphome:
   name: touch
 
@@ -6,37 +11,11 @@ rp2040:
   framework:
     platform_version: https://github.com/maxgerhardt/platform-raspberrypi.git
 
-logger:
-
-<<: !include .wifi.yaml
-<<: !include .api.yaml
-<<: !include .ota.yaml
-
-time:
-  # DIAGNOSTIC
-  - platform: homeassistant
-    id: ha_time
-
-sensor:
-  # DIAGNOSTIC
-  - platform: uptime
-    type: timestamp
-    name: "Uptime"
-
-  # DIAGNOSTIC
-  - platform: wifi_signal
-    name: "WiFi Signal"
-
 spi:
   clk_pin: GPIO10
   mosi_pin: GPIO11
 
 binary_sensor:
-  # DIAGNOSTIC
-  - platform: status
-    id: system_status
-    name: "Status"
-
   - platform: gpio
     pin: GPIO2
     id: btn1

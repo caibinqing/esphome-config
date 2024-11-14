@@ -1,4 +1,8 @@
 # https://esphome.io/components/sensor/sfa30
+
+packages:
+  common: !include .esp32_common.yaml
+
 esphome:
   name: sfa30
   friendly_name: SFA30
@@ -10,52 +14,11 @@ esp32:
     type: arduino
     version: latest
 
-logger:
-
-<<: !include .wifi.yaml
-<<: !include .api.yaml
-<<: !include .ota.yaml
-
-binary_sensor:
-  # DIAGNOSTIC
-  - platform: status
-    id: system_status
-    name: "Status"
-
-button:
-  # DIAGNOSTIC
-  - platform: restart
-    name: "Restart"
-
-  # DIAGNOSTIC
-  - platform: factory_reset
-    name: "Factory Reset"
-
-time:
-  # DIAGNOSTIC
-  - platform: homeassistant
-    id: ha_time
-
 i2c:
   sda: GPIO6
   scl: GPIO7
 
 sensor:
-  # DIAGNOSTIC
-  - platform: uptime
-    type: timestamp
-    name: "Uptime"
-
-  # DIAGNOSTIC
-  - platform: wifi_signal
-    name: "WiFi Signal"
-    id: wifi_signal_db
-
-  # DIAGNOSTIC
-  - platform: internal_temperature
-    id: esp_temperature
-    name: "Internal Temperature"
-
   - platform: sfa30
     formaldehyde:
       name: "Formaldehyde"
@@ -71,8 +34,3 @@ sensor:
         - skip_initial: 2
         - offset: 12.0
     update_interval: 15s
-
-esp32_ble_tracker:
-
-bluetooth_proxy:
-  active: true

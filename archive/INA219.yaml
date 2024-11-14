@@ -1,0 +1,34 @@
+# https://esphome.io/components/sensor/ina219
+
+packages:
+  common: !include .esp32_common.yaml
+
+
+esphome:
+  name: ina219
+  friendly_name: INA219
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: arduino
+
+i2c:
+  sda: 21
+  scl: 22
+
+sensor:
+  - platform: ina219
+    address: 0x40
+    shunt_resistance: 0.1 ohm
+    current:
+      name: "INA219 Current"
+    power:
+      name: "INA219 Power"
+    bus_voltage:
+      name: "INA219 Bus Voltage"
+    shunt_voltage:
+      name: "INA219 Shunt Voltage"
+    max_voltage: 4.2V
+    max_current: 1.2A
+    update_interval: 1s

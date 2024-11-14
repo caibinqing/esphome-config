@@ -1,0 +1,4 @@
+time:
+  # DIAGNOSTIC
+  - platform: homeassistant
+    id: ha_time

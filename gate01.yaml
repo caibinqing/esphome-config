@@ -1,3 +1,8 @@
+packages:
+  basic: !include .basic.yaml
+  diagnostics: !include .diagnostics.yaml
+
+
 esphome:
   name: gate01
   friendly_name: 楼道门
@@ -5,11 +10,9 @@ esphome:
 esp8266:
   board: esp01_1m
 
-logger:
-
-<<: !include .wifi.yaml
-<<: !include .api.yaml
-<<: !include .ota.yaml
+binary_sensor:
+  - platform: template
+    id: lock_state
 
 switch:
   - platform: gpio
@@ -18,15 +21,6 @@ switch:
   - platform: gpio
     pin: GPIO2
     id: pin_lock
-
-binary_sensor:
-  # DIAGNOSTIC
-  - platform: status
-    id: system_status
-    name: "Status"
-
-  - platform: template
-    id: lock_state
 
 lock:
   - platform: template
@@ -60,18 +54,3 @@ lock:
       - binary_sensor.template.publish:
           id: lock_state
           state: OFF
-
-time:
-  # DIAGNOSTIC
-  - platform: homeassistant
-    id: ha_time
-
-sensor:
-  # DIAGNOSTIC
-  - platform: uptime
-    type: timestamp
-    name: "Uptime"
-
-  # DIAGNOSTIC
-  - platform: wifi_signal
-    name: "WiFi Signal"

@@ -1,8 +1,158 @@
 packages:
   esphome.voice-assistant: github://esphome/firmware/wake-word-voice-assistant/esp32-s3-box-3.yaml@main
+  basic: !include .basic.yaml
+
 esphome:
   name_add_mac_suffix: false
 
-<<: !include .wifi.yaml
-<<: !include .api.yaml
-<<: !include .ota.yaml
+api:
+  on_client_connected:
+    - logger.log:
+        format: "Client %s connected to API with IP %s"
+        args: ["client_info.c_str()", "client_address.c_str()"]
+
+binary_sensor:
+  # 是否连接到HA
+  - platform: status
+    id: system_status
+    name: "Status"
+
+  # 屏幕下方的红色圆圈按钮
+  - platform: gt911
+    name: "Home Button"
+    index: 0
+
+  # 雷达传感器
+  - platform: gpio
+    pin:
+      number: GPIO21
+    name: "Presence detect"
+    device_class: "occupancy"
+    filters:
+      - delayed_off: !lambda return id(radar_delayed_off).state * 1000;
+    on_release:
+      then:
+        - if:
+            condition:
+              switch.is_on: screen_auto_off
+            then:
+#              - switch.turn_on: mute
+              - light.turn_off: led
+    on_press:
+      then:
+        - if:
+            condition:
+              switch.is_on: screen_auto_off
+            then:
+#              - switch.turn_off: mute
+              - light.turn_on: led
+
+button:
+  # 重启按钮
+  - platform: restart
+    id: restart_btn
+    name: "Restart"
+
+i2c:
+  # 触摸屏、麦克风
+  - id: bus_a
+    sda: GPIO08
+    scl: GPIO18
+    scan: false
+    sda_pullup_enabled: true
+    scl_pullup_enabled: true
+    frequency: 100kHz
+  # 雷达、AHT30温湿度传感器
+  - id: bus_b
+    sda: GPIO41
+    scl: GPIO40
+    scan: false
+    sda_pullup_enabled: true
+    scl_pullup_enabled: true
+    frequency: 100kHz
+
+number:
+  # 存在传感器超时配置
+  - platform: template
+    name: "Presence duration"
+    id: radar_delayed_off
+    icon: mdi:account-clock
+    optimistic: true
+    restore_value: true
+    initial_value: 60
+    min_value: 0
+    step: 5
+    max_value: 300
+    unit_of_measurement: s
+    entity_category: config
+    mode: box
+
+sensor:
+  # 运行时间
+  - platform: uptime
+    type: timestamp
+    id: uptime_sensor
+    name: "Uptime"
+
+  # WiFi信号强度
+  - platform: wifi_signal
+    id: wifi_signal_db
+    name: "WiFi Signal"
+
+  # 芯片温度
+  - platform: internal_temperature
+    id: chip_temperature
+    name: "Internal Temperature"
+
+  # AHT30温湿度传感器
+  - platform: aht10
+    i2c_id: bus_b
+    variant: AHT20
+    temperature:
+      name: "AHT30 Temperature"
+    humidity:
+      name: "AHT30 Humidity"
+    update_interval: 17s
+
+  # 电池电量
+  - platform: adc
+    pin: GPIO10
+    attenuation: auto
+    update_interval: 7s
+    id: battery_voltage
+    name: "Battery voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 3
+    device_class: "voltage"
+    entity_category: "diagnostic"
+#    disabled_by_default: true
+    filters:
+       - multiply: 4.01
+  - platform: copy
+    source_id: battery_voltage
+    name: "Battery level"
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    device_class: battery
+    entity_category: diagnostic
+    filters:
+      - lambda: return (x - 3.1) / (4.14 - 3.1) * 100;
+      - clamp:
+          min_value: 0
+          max_value: 100
+          ignore_out_of_range: true
+
+switch:
+  # 无人自动关闭屏幕
+  - platform: template
+    name: "Screen Auto Off"
+    id: screen_auto_off
+    icon: mdi:account-right-arrow
+    optimistic: true
+    entity_category: config
+    restore_mode: RESTORE_DEFAULT_OFF
+
+touchscreen:
+  platform: gt911
+  id: my_touchscreen
+  i2c_id: bus_a

@@ -1,62 +1,26 @@
 # https://esphome.io/components/sensor/sgp4x
 # https://esphome.io/components/sensor/dht
 
+packages:
+  common: !include .esp32_common.yaml
+
 esphome:
   name: sgp4x
   friendly_name: SGP4X
 
 esp32:
   board: esp32-s3-devkitc-1
+  variant: esp32s3
   framework:
     type: arduino
     version: latest
-  variant: esp32s3
 
-logger:
-
-<<: !include .wifi.yaml
-<<: !include .api.yaml
-<<: !include .ota.yaml
-
-esp32_ble_tracker:
-
-bluetooth_proxy:
-  active: true
-
-binary_sensor:
-  # DIAGNOSTIC
-  - platform: status
-    id: system_status
-    name: "Status"
-
-button:
-  # DIAGNOSTIC
-  - platform: restart
-    name: "Restart"
-
-  # DIAGNOSTIC
-  - platform: factory_reset
-    name: "Factory Reset"
-
-time:
-  # DIAGNOSTIC
-  - platform: homeassistant
-    id: ha_time
+i2c:
+  - sda: 47
+    scl: 11
+    scan: true
 
 sensor:
-  # DIAGNOSTIC
-  - platform: uptime
-    type: timestamp
-    name: "Uptime"
-
-  # DIAGNOSTIC
-  - platform: wifi_signal
-    name: "WiFi Signal"
-
-  # DIAGNOSTIC
-  - platform: internal_temperature
-    name: "Internal Temperature"
-
   - platform: sgp4x
     voc:
       id: voc
@@ -86,8 +50,3 @@ sensor:
       filters:
         - offset: 1
     update_interval: 29s
-
-i2c:
-  - sda: 47
-    scl: 48
-    scan: true

@@ -6,6 +6,8 @@ substitutions:
   PIN_INA_SWITCH: GPIO5
   # PIN_INB_SWITCH: GPIO5
 
+packages:
+  common: !include .esp32_common.yaml
 
 esphome:
   name: turtles-feeder
@@ -27,12 +29,6 @@ esp32:
     type: arduino
     version: latest
 
-logger:
-
-<<: !include .wifi.yaml
-<<: !include .api.yaml
-<<: !include .ota.yaml
-
 script:
   - id: check_food  # 检查是否还有食物
     then:
@@ -53,10 +49,6 @@ script:
       - switch.turn_off: infrared_led
     mode: single
 
-time:
-  - platform: homeassistant
-    id: ha_time
-
 button:
   # 喂食
   - platform: template
@@ -75,11 +67,6 @@ button:
     entity_category: diagnostic
 
 binary_sensor:
-  # DIAGNOSTIC
-  - platform: status
-    id: system_status
-    name: "Status"
-
   # 缺料提示
   - platform: template
     id: missing_feed
@@ -160,21 +147,6 @@ sensor:
       id: mpu6886_temperature
       name: "MPU6886 Temperature"
       entity_category: diagnostic
-
-  # DIAGNOSTIC
-  - platform: internal_temperature
-    id: esp_temperature
-    name: "Internal Temperature"
-
-  # DIAGNOSTIC
-  - platform: uptime
-    type: timestamp
-    name: "Uptime"
-
-  # DIAGNOSTIC
-  - platform: wifi_signal
-    name: "WiFi Signal"
-    id: wifi_signal_db
 
   # DIAGNOSTIC
   - platform: copy
@@ -310,7 +282,7 @@ display:
       // it.strftime(w/2, 32, id(roboto_24), id(white), TextAlign::TOP_CENTER, "Last: %H:%M:%S", localtime(&last_feed_time));
 
       // 芯片温度
-      it.printf(w-2 , h-2, id(roboto_12), id(gray), TextAlign::BOTTOM_RIGHT, "Chip Temp: %.1f°C", id(esp_temperature).state);
+      it.printf(w-2 , h-2, id(roboto_12), id(gray), TextAlign::BOTTOM_RIGHT, "Chip Temp: %.1f°C", id(chip_temperature).state);
 
 graph:
   - id: my_graph

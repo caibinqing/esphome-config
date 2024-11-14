@@ -1,3 +1,6 @@
+packages:
+  common: !include .esp32_common.yaml
+
 esphome:
   name: dht11-bh1750
   friendly_name: DHT11
@@ -6,35 +9,14 @@ esp32:
   board: nodemcu-32s
   framework:
     type: esp-idf
-    version: latest
-
-logger:
-
-<<: !include .wifi.yaml
-<<: !include .api.yaml
-<<: !include .ota.yaml
-
-esp32_ble_tracker:
-
-bluetooth_proxy:
-  active: true
-
-binary_sensor:
-  # DIAGNOSTIC
-  - platform: status
-    id: system_status
-    name: "Status"
-
-time:
-  # DIAGNOSTIC
-  - platform: homeassistant
-    id: ha_time
 
 i2c:
   sda: 21
   scl: 22
 
 sensor:
+  - id: !remove chip_temperature
+
   - platform: dht
     pin: 16
     temperature:
@@ -47,16 +29,3 @@ sensor:
     name: "BH1750 Illuminance"
     address: 0x23
     update_interval: 5s
-
-  # DIAGNOSTIC
-  - platform: uptime
-    type: timestamp
-    name: "Uptime"
-
-  # DIAGNOSTIC
-  - platform: wifi_signal
-    name: "WiFi Signal"
-
-  # # DIAGNOSTIC
-  # - platform: internal_temperature
-  #   name: "Internal Temperature"

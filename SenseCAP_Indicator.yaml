@@ -1,0 +1,367 @@
+packages:
+  common: !include .esp32_common.yaml
+
+esphome:
+  name: sensecap_indicator
+  friendly_name: SenseCAP Indicator
+  name_add_mac_suffix: false
+  platformio_options:
+    board_build.flash_mode: dio
+    build_unflags: -Werror=all
+  on_boot:
+    - light.turn_on:
+        id: lv_light
+        brightness: 100%
+        red: 100%
+        green: 0
+        blue: 0
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: y
+      CONFIG_ESP32S3_DATA_CACHE_64KB: y
+      CONFIG_SPIRAM_FETCH_INSTRUCTIONS: y
+      CONFIG_SPIRAM_RODATA: y
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+  level: DEBUG
+  hardware_uart: UART0
+
+api:
+  on_client_connected:
+    - logger.log:
+        format: "Client %s connected to API with IP %s"
+        args: ["client_info.c_str()", "client_address.c_str()"]
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.show: lbl_hastatus
+          - script.execute: fade_out_boot_screen
+  on_client_disconnected:
+    - if:
+        condition:
+          lambda: 'return (0 == client_info.find("Home Assistant "));'
+        then:
+          - lvgl.widget.hide: lbl_hastatus
+          - script.execute: show_boot_screen
+
+image:
+  - file: https://esphome.io/_static/favicon-512x512.png
+    id: boot_logo
+    resize: 200x200
+    type: RGB565
+    use_transparency: true
+
+binary_sensor:
+  - platform: homeassistant
+    id: study_light_light
+    entity_id: light.study_light_light
+    publish_initial_state: true
+    on_state:
+      then:
+        lvgl.widget.update:
+          id: light_btn
+          state:
+            checked: !lambda return x;
+
+output:
+  - # 屏幕背光输出组件
+    platform: ledc
+    pin:
+      number: GPIO45
+      ignore_strapping_warning: true
+    id: ledc_gpio45
+    frequency: 100Hz
+
+light:
+  - # 屏幕背光
+    platform: monochromatic
+    output: ledc_gpio45
+    name: "Display Backlight"
+    icon: "mdi:monitor"
+    id: display_backlight
+    restore_mode: ALWAYS_ON
+
+  - platform: lvgl
+    name: LVGL LED
+    id: lv_light
+    led: lv_led
+    effects:
+      - pulse:
+          name: "Slow Pulse"
+          # transition_length: 1s      # defaults to 1s
+          update_interval: 2s
+      - strobe:
+      - strobe:
+          name: "Strobe Effect With Custom Values"
+          colors:
+            - state: true
+              brightness: 100%
+              red: 100%
+              green: 90%
+              blue: 0%
+              duration: 500ms
+            - state: false
+              duration: 250ms
+            - state: true
+              brightness: 100%
+              red: 0%
+              green: 100%
+              blue: 0%
+              duration: 500ms
+
+number:
+  - # 屏幕自动关闭时间
+    platform: template
+    name: "Screen timeout"
+    optimistic: true
+    id: display_timeout
+    unit_of_measurement: "s"
+    initial_value: 10
+    restore_value: true
+    min_value: 10
+    max_value: 180
+    step: 5
+    mode: box
+
+time:
+  - id: !extend ha_time
+    on_time:
+      - hours: 2,3,4,5
+        minutes: 5
+        seconds: 0
+        then:
+          - switch.turn_on: switch_antiburn
+      - hours: 2,3,4,5
+        minutes: 35
+        seconds: 0
+        then:
+          - switch.turn_off: switch_antiburn
+
+switch:
+  - platform: template
+    name: 防烧屏
+    id: switch_antiburn
+    icon: mdi:television-shimmer
+    optimistic: true
+    entity_category: config
+    turn_on_action:
+      - logger.log: "Starting Antiburn"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+      - light.turn_on:
+          id: display_backlight
+          brightness: 100%
+      - lvgl.pause:
+          show_snow: true
+    turn_off_action:
+      - logger.log: "Stopping Antiburn"
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
+    restore_mode: ALWAYS_OFF
+
+spi:
+  - id: lcd_spi
+    clk_pin: 41
+    mosi_pin: 48
+
+i2c:
+  sda: 39
+  scl: 40
+  scan: false
+  id: bus_a
+
+# I/O expander. Touchscreen RESET and INTERRUPT are not used.
+pca9554:
+  - id: p_c_a
+    pin_count: 16
+    address: 0x20
+
+touchscreen:
+  - platform: ft5x06
+    id: ft5x06_touchscreen
+    transform:
+      mirror_x: true
+      mirror_y: true
+    on_touch:
+      then:
+        - if:
+            condition:
+              and:
+                - not: lvgl.is_paused
+                - or:
+                    - light.is_off: display_backlight
+                    - lambda: "return id(display_backlight).current_values.get_brightness() < 1.0;"
+            then:
+              - light.turn_on:
+                  id: display_backlight
+                  brightness: 100%
+    on_release:
+      then:
+        - if:
+            condition: lvgl.is_paused
+            then:
+              - logger.log: "LVGL resuming"
+              - lvgl.resume:
+              - lvgl.widget.redraw:
+              - light.turn_on:
+                  id: display_backlight
+                  brightness: 100%
+
+display:
+  - platform: st7701s
+    auto_clear_enabled: false
+    update_interval: never
+    spi_mode: MODE3
+    color_order: RGB
+    dimensions:
+      width: 480
+      height: 480
+    invert_colors: true
+    transform:
+      mirror_x: true
+      mirror_y: true
+    cs_pin:
+      pca9554: p_c_a
+      number: 4
+    reset_pin:
+      pca9554: p_c_a
+      number: 5
+    # Init sequence can be one of the defaults and/or custom sequences.
+    init_sequence:
+      - 1 # select canned init sequence number 1
+      - delay 5ms
+      # Custom sequences are an array, first byte is command, the rest are data.
+      - [0xE0, 0x1F] # Set sunlight readable enhancement
+    # https://wiki.seeedstudio.com/SenseCAP_Indicator_Dive_into_the_Hardware/
+    hsync_pin: 16
+    vsync_pin: 17
+    de_pin: 18
+    pclk_pin: 21
+    data_pins:
+      red: [4, 3, 2, 1, 0]
+      green: [10, 9, 8, 7, 6, 5]
+      blue: [15, 14, 13, 12, 11]
+
+lvgl:
+  touchscreens: ft5x06_touchscreen
+  # color_depth: 16
+  # buffer_size: 100%  # 默认 100%
+  log_level: INFO  # 默认 WARN
+  default_font: montserrat_20
+  on_idle:
+    - timeout: !lambda "return (id(display_timeout).state * 1000);"
+      then:
+        - logger.log: "LVGL is idle"
+        - light.turn_on:
+            id: display_backlight
+            brightness: 10%
+    - timeout: !lambda "return (id(display_timeout).state * 1000 + 5000);"
+      then:
+        - logger.log: "LVGL Pause"
+        - lvgl.pause:
+        - light.turn_off: display_backlight
+  # debugging info will write all the touchscreen taps and their x/y to console
+  pages:
+    - widgets:
+      - led:
+          id: lv_led
+          color: 0xFF0000
+          brightness: 50%
+      - label:
+          align: TOP_MID
+          id: lbl_id
+          recolor: true
+          text: "\uF015 #FF0000 write# #00FF00 colored# #0000FF text#"
+      - button:
+          id: light_btn
+          align: BOTTOM_MID
+          width: 300
+          height: 70
+          checkable: true
+          widgets:
+            - label:
+                align: CENTER
+                text: "let there be light"
+                text_font: montserrat_24
+          on_click:
+            - homeassistant.action:
+                action: light.toggle
+                data:
+                  entity_id: light.study_light_light
+  top_layer:
+    widgets:
+      - # WiFi图标
+        label:
+          text: "\uF1EB"
+          id: lbl_hastatus
+          hidden: true
+          align: top_right
+          x: -5
+          y: 5
+          text_align: right
+          text_color: 0x000000
+      - obj:
+          id: boot_screen
+          x: 0
+          y: 0
+          width: 100%
+          height: 100%
+          bg_color: 0xffffff
+          bg_opa: COVER
+          radius: 0
+          pad_all: 0
+          border_width: 0
+          widgets:
+            - image:
+                align: CENTER
+                src: boot_logo
+                y: -40
+            - spinner:
+                align: CENTER
+                y: 95
+                height: 50
+                width: 50
+                spin_time: 1s
+                arc_length: 60deg
+                arc_width: 8
+                indicator:
+                  arc_color: 0x18bcf2
+                  arc_width: 8
+          # on_press:
+          #   - lvgl.widget.hide: boot_screen
+
+script:
+  - id: fade_out_boot_screen
+    then:
+      - lambda: |-
+          lv_anim_t anim;
+          lv_anim_init(&anim);
+          lv_anim_set_var(&anim, id(boot_screen));
+          lv_anim_set_time(&anim, 1000);  // Duration: 1000 ms
+          lv_anim_set_values(&anim, 255, 0);  // Fade out from full opacity to transparent
+          lv_anim_set_exec_cb(&anim, [](void * obj, int32_t v) {
+              lv_obj_set_style_opa((lv_obj_t *)obj, v, LV_PART_MAIN);
+          });
+          lv_anim_start(&anim);
+      - delay: 1s
+      - lvgl.widget.hide: boot_screen
+  - id: show_boot_screen
+    then:
+      - lambda: "lv_anim_del(id(boot_screen), [](void * obj, int32_t v){});"
+      - lvgl.widget.show: boot_screen
