@@ -1,0 +1,29 @@
+sensor:
+  # 电池电量
+  - platform: adc
+    pin: GPIO10
+    attenuation: auto
+    update_interval: 60s
+    id: battery_voltage
+    name: "Battery voltage"
+    unit_of_measurement: "V"
+    accuracy_decimals: 3
+    device_class: "voltage"
+    entity_category: "diagnostic"
+#    disabled_by_default: true
+    filters:
+       - multiply: 4.01
+  - platform: copy
+    source_id: battery_voltage
+    name: "Battery level"
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    device_class: battery
+    entity_category: diagnostic
+    filters:
+      - lambda: |-
+          if (x < 2.0) return NAN;
+          float v = (x - 3.1) / (4.14 - 3.1) * 100.0;
+          if (v < 0.0) return 0.0;
+          if (v > 100.0) return 100.0;
+          return v;

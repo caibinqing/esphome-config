@@ -1,0 +1,10 @@
+binary_sensor:
+  # 屏幕下方的红色圆圈按钮
+  - platform: gt911
+    name: "Home Button"
+    index: 0
+
+touchscreen:
+  platform: gt911
+  id: my_touchscreen
+  i2c_id: bus_a

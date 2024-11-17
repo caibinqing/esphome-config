@@ -13,6 +13,7 @@ esp32:
   framework:
     type: arduino
     version: latest
+    platform_version: 6.9.0
 
 i2c:
   sda: GPIO6

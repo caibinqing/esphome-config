@@ -1,0 +1,57 @@
+packages:
+  basic: !include .basic.yaml
+  diagnostics: !include .diagnostics.yaml
+
+esphome:
+  name: xiao-s3-camera
+  friendly_name: XIAO S3 Camera
+
+esp32:
+  board: seeed_xiao_esp32s3
+  variant: esp32s3
+  framework:
+    type: arduino
+    version: latest
+    platform_version: 6.9.0
+
+esp32_camera:
+  name: OV2640
+  data_pins: [GPIO15, GPIO17, GPIO18, GPIO16, GPIO14, GPIO12, GPIO11, GPIO48]
+  vsync_pin: GPIO38
+  href_pin: GPIO47
+  pixel_clock_pin: GPIO13
+  external_clock:
+    pin: GPIO10
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO40
+    scl: GPIO39
+  max_framerate: 5fps
+  idle_framerate: 0.05fps
+  # frame_buffer_count: 2
+  # resolution: 640x480
+  # resolution: 800x600
+  # resolution: 1024x768
+  resolution: 1600x1200
+  jpeg_quality: 16
+
+esp32_camera_web_server:
+  - port: 8080
+    mode: stream
+  # - port: 8081
+  #   mode: snapshot
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+sensor:
+  - platform: internal_temperature
+    id: chip_temperature
+    name: "Internal Temperature"
+    update_interval: 5s
+
+status_led:
+  pin:
+    number: GPIO21
+    inverted: True

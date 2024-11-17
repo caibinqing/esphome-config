@@ -23,11 +23,12 @@ esphome:
             - switch.turn_on: ina_switch
 
 esp32:
-  board: esp32-s3-devkitc-1  # m5stack-atoms3
+  board: m5stack-atoms3
   variant: esp32s3
   framework:
     type: arduino
     version: latest
+    platform_version: 6.9.0
 
 script:
   - id: check_food  # 检查是否还有食物

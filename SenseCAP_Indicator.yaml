@@ -2,19 +2,12 @@ packages:
   common: !include .esp32_common.yaml
 
 esphome:
-  name: sensecap_indicator
+  name: sensecap-indicator
   friendly_name: SenseCAP Indicator
   name_add_mac_suffix: false
   platformio_options:
     board_build.flash_mode: dio
     build_unflags: -Werror=all
-  on_boot:
-    - light.turn_on:
-        id: lv_light
-        brightness: 100%
-        red: 100%
-        green: 0
-        blue: 0
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -63,13 +56,13 @@ image:
 
 binary_sensor:
   - platform: homeassistant
-    id: study_light_light
-    entity_id: light.study_light_light
+    id: light_shufang
+    entity_id: light.wiz_tunable_white_cb9a45
     publish_initial_state: true
     on_state:
       then:
         lvgl.widget.update:
-          id: light_btn
+          id: btn_shufang_light
           state:
             checked: !lambda return x;
 
@@ -90,34 +83,6 @@ light:
     icon: "mdi:monitor"
     id: display_backlight
     restore_mode: ALWAYS_ON
-
-  - platform: lvgl
-    name: LVGL LED
-    id: lv_light
-    led: lv_led
-    effects:
-      - pulse:
-          name: "Slow Pulse"
-          # transition_length: 1s      # defaults to 1s
-          update_interval: 2s
-      - strobe:
-      - strobe:
-          name: "Strobe Effect With Custom Values"
-          colors:
-            - state: true
-              brightness: 100%
-              red: 100%
-              green: 90%
-              blue: 0%
-              duration: 500ms
-            - state: false
-              duration: 250ms
-            - state: true
-              brightness: 100%
-              red: 0%
-              green: 100%
-              blue: 0%
-              duration: 500ms
 
 number:
   - # 屏幕自动关闭时间
@@ -289,7 +254,7 @@ lvgl:
           recolor: true
           text: "\uF015 #FF0000 write# #00FF00 colored# #0000FF text#"
       - button:
-          id: light_btn
+          id: btn_shufang_light
           align: BOTTOM_MID
           width: 300
           height: 70
@@ -365,3 +330,9 @@ script:
     then:
       - lambda: "lv_anim_del(id(boot_screen), [](void * obj, int32_t v){});"
       - lvgl.widget.show: boot_screen
+
+uart:
+  baud_rate: 115200
+  tx_pin: GPIO19
+  rx_pin: GPIO20
+  debug:
