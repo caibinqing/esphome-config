@@ -1,0 +1,40 @@
+binary_sensor:
+  # 屏幕下方的红色圆圈按钮
+  - platform: gt911
+    name: "Home Button"
+    index: 0
+
+i2c:
+  # 触摸屏、麦克风
+  - id: bus_a
+    sda: GPIO08
+    scl: GPIO18
+    scan: false
+    sda_pullup_enabled: true
+    scl_pullup_enabled: true
+    frequency: 100kHz
+  # 雷达配置、AHT30温湿度传感器
+  - id: bus_b
+    sda: GPIO41
+    scl: GPIO40
+    scan: false
+    sda_pullup_enabled: true
+    scl_pullup_enabled: true
+    frequency: 100kHz
+
+sensor:
+  # AHT30温湿度传感器
+  - platform: aht10
+    i2c_id: bus_b
+    variant: AHT20
+    address: 0x38
+    temperature:
+      name: "AHT30 Temperature"
+    humidity:
+      name: "AHT30 Humidity"
+    update_interval: 17s
+
+touchscreen:
+  platform: gt911
+  id: my_touchscreen
+  i2c_id: bus_a
