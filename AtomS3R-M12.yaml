@@ -1,0 +1,86 @@
+packages:
+  basic: !include .basic.yaml
+  diagnostics: !include .diagnostics.yaml
+
+esphome:
+  name: atom-s3r-m12
+  friendly_name: AtomS3R M12
+  platformio_options:
+    board_build.arduino.memory_type: qio_opi
+
+esp32:
+  board: m5stack-atoms3
+  variant: esp32s3
+  framework:
+    type: arduino
+    version: latest
+    platform_version: 6.9.0
+  flash_size: 8MB
+  partitions: "default_8MB.csv"
+
+esp32_camera:
+  name: OV3660  # 2592*1944
+  data_pins: [GPIO3, GPIO42, GPIO46, GPIO48, GPIO4, GPIO17, GPIO11, GPIO13]
+  vsync_pin: GPIO10
+  href_pin: GPIO14
+  pixel_clock_pin: GPIO40
+  external_clock:
+    pin: GPIO21
+    frequency: 20MHz
+  i2c_pins:
+    sda: GPIO12
+    scl: GPIO9
+  # power_down_pin: GPIO18
+  max_framerate: 5fps
+  idle_framerate: 0.1fps
+  # frame_buffer_count: 2
+  # resolution: 320x240
+  # resolution: 640x480
+  # resolution: 800x600
+  # resolution: 1024x768
+  # resolution: 1600x1200
+  resolution: 2048x1536
+  jpeg_quality: 24
+  vertical_flip: false
+  brightness: 1
+  # saturation: -2
+
+esp32_camera_web_server:
+  - port: 8080
+    mode: stream
+  # - port: 8081
+  #   mode: snapshot
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+sensor:
+  - platform: internal_temperature
+    id: chip_temperature
+    name: "Internal Temperature"
+    update_interval: 5s
+
+  # - platform: bmi160
+  #   address: 0x68
+  #   update_interval: 1s
+  #   acceleration_x:
+  #     name: "BMI270 Accel X"
+  #   acceleration_y:
+  #     name: "BMI270 Accel Y"
+  #   acceleration_z:
+  #     name: "BMI270 Accel z"
+  #   gyroscope_x:
+  #     name: "BMI270 Gyro X"
+  #   gyroscope_y:
+  #     name: "BMI270 Gyro Y"
+  #   gyroscope_z:
+  #     name: "BMI270 Gyro z"
+  #   temperature:
+  #     name: "BMI270 Temperature"
+
+switch:
+  - platform: gpio
+    pin: GPIO18
+    id: camera_power
+    restore_mode: ALWAYS_OFF
