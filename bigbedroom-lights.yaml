@@ -1,5 +1,6 @@
 packages:
-  common: !include .esp32_common.yaml
+  basic: !include .basic.yaml
+  diagnostics: !include .diagnostics.yaml
 
 esphome:
   name: bigbedroom-lights
@@ -16,29 +17,21 @@ binary_sensor:
       number: GPIO19
       mode:
         input: true
-        # pullup: true
   - platform: gpio
     name: "B"
     pin:
       number: GPIO18
       mode:
         input: true
-        # pullup: true
   - platform: gpio
     name: "C"
     pin:
       number: GPIO17
       mode:
         input: true
-        # pullup: true
   - platform: gpio
     name: "D"
     pin:
       number: GPIO16
-      # inverted: true
       mode:
         input: true
-        # pullup: true
-
-sensor:
-  - id: !remove chip_temperature
