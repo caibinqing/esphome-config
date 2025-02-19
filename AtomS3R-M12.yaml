@@ -14,7 +14,7 @@ esp32:
   framework:
     type: arduino
     version: latest
-    platform_version: 6.9.0
+    platform_version: 6.10.0
   flash_size: 8MB
   partitions: "default_8MB.csv"
 
