@@ -10,7 +10,7 @@ sensor:
     accuracy_decimals: 3
     device_class: "voltage"
     entity_category: "diagnostic"
-#    disabled_by_default: true
+    # disabled_by_default: true
     filters:
        - multiply: 4.01
   - platform: copy

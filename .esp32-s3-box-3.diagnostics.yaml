@@ -14,7 +14,7 @@ button:
   - id: !extend factory_reset_btn
     internal: false
     name: "Factory Reset"
-#    disabled_by_default: true
+    # disabled_by_default: true
 
 sensor:
   # 运行时间

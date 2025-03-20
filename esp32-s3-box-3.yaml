@@ -1,5 +1,5 @@
 packages:
-  esphome.voice-assistant: github://esphome/firmware/wake-word-voice-assistant/esp32-s3-box-3.yaml@main
+  esphome.voice-assistant: github://esphome/wake-word-voice-assistants/esp32-s3-box-3/esp32-s3-box-3.yaml@main
   basic: !include .basic.yaml
   battery: !include .esp32-s3-box-3.battery.yaml
   fonts: !include .esp32-s3-box-3.fonts.yaml

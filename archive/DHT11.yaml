@@ -1,0 +1,31 @@
+packages:
+  common: !include .esp32_common.yaml
+
+esphome:
+  name: dht11-bh1750
+  friendly_name: DHT11
+
+esp32:
+  board: nodemcu-32s
+  framework:
+    type: esp-idf
+
+i2c:
+  sda: 21
+  scl: 22
+
+sensor:
+  - id: !remove chip_temperature
+
+  - platform: dht
+    pin: 16
+    temperature:
+      name: "DHT11 Temperature"
+    humidity:
+      name: "DHT11 Humidity"
+    update_interval: 60s
+
+  - platform: bh1750
+    name: "BH1750 Illuminance"
+    address: 0x23
+    update_interval: 5s
