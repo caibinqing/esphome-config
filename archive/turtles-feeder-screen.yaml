@@ -28,7 +28,7 @@ esp32:
   framework:
     type: arduino
     version: latest
-    platform_version: 6.11.0
+    # platform_version: 6.11.0
 
 script:
   - id: check_food  # 检查是否还有食物
