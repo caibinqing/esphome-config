@@ -10,9 +10,7 @@ esp32:
   board: seeed_xiao_esp32s3
   variant: esp32s3
   framework:
-    type: arduino
-    version: latest
-    # platform_version: 6.11.0
+    type: esp-idf
 
 esp32_camera:
   name: OV2640
